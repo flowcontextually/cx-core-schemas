@@ -55,6 +55,12 @@ class ApiCatalogBase(BaseModel):
         default=None,
         description="Configuration for the 'Test Connection' functionality.",
     )
+    source_spec: Optional[Dict[str, Any]] = Field(default=None, exclude=True)
+    schemas_module_path: Optional[str] = Field(
+        default=None,
+        description="The absolute path to the generated schemas.py file for this blueprint.",
+        exclude=True,
+    )
 
 
 class ApiCatalog(ApiCatalogBase):

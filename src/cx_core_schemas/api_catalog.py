@@ -1,31 +1,57 @@
 from pydantic import BaseModel, Field
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, Literal, Optional, List
 
 
-class AuthMethodField(BaseModel):
-    """Defines a single input field for an authentication form."""
+class AuthField(BaseModel):
+    """
+    Defines a single field required for a connection, providing all the
+    metadata needed for a CLI to dynamically and securely prompt for it.
+    """
 
-    name: str
-    label: str
-    type: str  # e.g., 'text', 'password'
-    placeholder: Optional[str] = None
+    name: str = Field(
+        ...,
+        description="The key for this field (e.g., 'server', 'api_key', 'username').",
+    )
+    label: str = Field(
+        ...,
+        description="The human-friendly prompt for this field (e.g., 'Server Address', 'API Key').",
+    )
+    type: Literal["detail", "secret"] = Field(
+        ...,
+        description="Determines storage. 'detail' goes to the insecure .conn.yaml, 'secret' goes to .secret.env.",
+    )
+    is_password: bool = Field(
+        False,
+        description="If true, the interactive CLI prompt will mask the user's input.",
+    )
 
 
 class SupportedAuthMethod(BaseModel):
-    """Describes a supported authentication method for a service."""
+    """
 
-    type: str  # e.g., 'api_key', 'oauth2'
-    name: str
-    preferred: bool = False
-    help_text: Optional[str] = None
-    help_url: Optional[str] = None
-    fields: List[AuthMethodField]
+    Describes a complete, self-contained authentication method that a blueprint
+    supports. This is the contract that drives the `cx connection create` command.
+    """
+
+    type: str = Field(
+        ...,
+        description="A unique identifier for this method within the blueprint (e.g., 'credentials', 'api_key').",
+    )
+    display_name: str = Field(
+        ...,
+        description="A human-friendly name for this method, shown to the user (e.g., 'Username & Password').",
+    )
+    fields: List[AuthField] = Field(
+        ...,
+        description="A list of all the fields that must be collected from the user for this method.",
+    )
 
 
 class ApiCatalogBase(BaseModel):
     """Base fields for an entry in the API service catalog."""
 
     name: str
+    id: str
     description: Optional[str] = None
     category: str = "General"
     icon: Optional[str] = None
@@ -55,6 +81,7 @@ class ApiCatalogBase(BaseModel):
         default=None,
         description="Configuration for the 'Test Connection' functionality.",
     )
+    # --- Internal fields, populated at runtime by the resolver ---
     source_spec: Optional[Dict[str, Any]] = Field(default=None, exclude=True)
     schemas_module_path: Optional[str] = Field(
         default=None,

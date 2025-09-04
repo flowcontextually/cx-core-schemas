@@ -114,6 +114,22 @@ class WriteFilesAction(BaseModel):
     )
 
 
+class RunTransformAction(BaseModel):
+    """
+    Executes a .transformer.yaml script as a native step in a flow.
+    """
+
+    action: Literal["run_transform"]
+    script_path: str = Field(
+        ..., description="The path to the .transformer.yaml script to execute."
+    )
+    # This input is flexible and will be rendered by Jinja before execution.
+    input_data: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="A dictionary containing data to be passed to the transformer's context.",
+    )
+
+
 # A discriminated union of all possible actions.
 # This list MUST be updated whenever a new action is created.
 AnyConnectorAction = Union[
@@ -125,6 +141,7 @@ AnyConnectorAction = Union[
     AggregateContentAction,
     RunPythonScriptAction,
     WriteFilesAction,
+    RunTransformAction,
 ]
 
 

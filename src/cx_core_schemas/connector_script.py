@@ -156,8 +156,8 @@ class ConnectorStep(BaseModel):
     name: str
 
     description: str | None = None
-    connection_source: str = Field(
-        ..., description="Source identifier, e.g., 'user:my_db' or 'file:...'"
+    connection_source: Optional[str] = Field(
+        default=None, description="Source identifier, e.g., 'user:my_db' or 'file:...'"
     )
 
     # The specific action to be executed in this step.

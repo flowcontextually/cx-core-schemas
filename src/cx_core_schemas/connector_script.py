@@ -85,6 +85,7 @@ class RunPythonScriptAction(BaseAction):
     input_data_json: str = Field(
         "{}", description="A JSON string to be passed to the script's stdin."
     )
+    args: List[str] = Field(default_factory=list)  # <-- ADD THIS
 
 
 class FileToWrite(BaseModel):

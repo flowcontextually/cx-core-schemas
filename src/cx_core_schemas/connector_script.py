@@ -211,6 +211,15 @@ class ConnectorStep(BaseModel):
     cache_config: Optional[Dict[str, Any]] = None
 
 
+class ScriptInputParameter(BaseModel):
+    """Defines a single expected input parameter for a script."""
+
+    description: str
+    type: str = "string"  # Default type
+    required: bool = False
+    default: Optional[Any] = None
+
+
 class ConnectorScript(BaseModel):
     """The root model for a declarative .flow.yaml file."""
 
@@ -220,8 +229,16 @@ class ConnectorScript(BaseModel):
     session_provider: Optional[str] = Field(
         None, description="The key for a stateful session provider, e.g., 'browser'."
     )
+    inputs: Optional[Dict[str, ScriptInputParameter]] = Field(
+        None, description="A schema defining the expected parameters for this script."
+    )
     steps: List[ConnectorStep]
     cache_config: Optional[Dict[str, Any]] = None
     script_input: Optional[Dict[str, Any]] = Field(
         default_factory=dict, description="Placeholder for data piped from stdin."
+    )
+    runtime_input: Optional[Dict[str, Any]] = Field(
+        default_factory=dict,
+        description="Placeholder for data piped from stdin.",
+        exclude=True,
     )

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Any, Dict, List, Optional
 from datetime import datetime
 
 
@@ -54,3 +54,35 @@ class VfsFileContentResponse(BaseModel):
     model_config = {
         "populate_by_name": True,  # Allows using both snake_case and alias (camelCase)
     }
+
+
+class StepResult(BaseModel):
+    """A record of a single step's execution within a run."""
+
+    step_id: str
+    status: str  # "completed", "failed", "skipped"
+    summary: str
+    cache_key: str
+    cache_hit: bool
+    output_hash: Optional[str] = None  # SHA256 hash of the raw data output
+
+
+class Artifact(BaseModel):
+    """Metadata for a single artifact produced by a run."""
+
+    content_hash: str  # SHA256 hash pointing to the data in the cache
+    mime_type: str
+    size_bytes: int
+    tags: Dict[str, Any] = Field(default_factory=dict)
+
+
+class RunManifest(BaseModel):
+    """The complete, auditable record of a single command execution."""
+
+    run_id: str
+    flow_id: str
+    status: str
+    timestamp_utc: datetime
+    parameters: Dict[str, Any]
+    steps: List[StepResult]
+    artifacts: Dict[str, Artifact] = Field(default_factory=dict)

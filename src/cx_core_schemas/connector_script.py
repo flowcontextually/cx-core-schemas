@@ -24,6 +24,18 @@ class RunSqlQueryAction(BaseAction):
     )
 
 
+class RunMultiQueryAction(BaseAction):
+    action: Literal["run_multi_query"]
+    targets: List[str] = Field(
+        ..., description="The list of collections/targets to query."
+    )
+    filter: str = Field(..., description="The filter string to apply to each target.")
+    blueprint_action: str = Field(
+        default="query",
+        description="The name of the action in the blueprint to call for each target.",
+    )
+
+
 class TestConnectionAction(BaseAction):
     action: Literal["test_connection"]
 
@@ -179,6 +191,7 @@ AnyConnectorAction = Union[
     BrowserTypeAction,
     BrowserGetHtmlAction,
     BrowserGetLocalStorageAction,
+    RunMultiQueryAction,
 ]
 
 

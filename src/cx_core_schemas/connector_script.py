@@ -36,6 +36,14 @@ class RunMultiQueryAction(BaseAction):
     )
 
 
+class RunFlowAction(BaseAction):
+    action: Literal["run_flow"]
+    flow_name: str = Field(..., description="The name of the flow to execute.")
+    inputs: Dict[str, Any] = Field(
+        default_factory=dict, description="Input parameters for the sub-flow."
+    )
+
+
 class TestConnectionAction(BaseAction):
     action: Literal["test_connection"]
 
@@ -191,7 +199,9 @@ AnyConnectorAction = Union[
     BrowserTypeAction,
     BrowserGetHtmlAction,
     BrowserGetLocalStorageAction,
+    # multi steps flows and actions
     RunMultiQueryAction,
+    RunFlowAction,
 ]
 
 

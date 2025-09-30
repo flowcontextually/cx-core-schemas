@@ -217,6 +217,10 @@ class ConnectorStep(BaseModel):
     connection_source: Optional[str] = Field(
         default=None, description="Source identifier, e.g., 'user:my_db' or 'file:...'"
     )
+    context: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="A dictionary of step-local variables to be made available for Jinja rendering.",
+    )
     run: AnyConnectorAction = Field(..., discriminator="action")
     outputs: Optional[Dict[str, str]] = Field(
         None,

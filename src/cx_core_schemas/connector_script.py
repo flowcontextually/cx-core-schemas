@@ -209,23 +209,53 @@ AnyConnectorAction = Union[
 
 
 class ConnectorStep(BaseModel):
-    """Defines a single, executable step within a declarative workflow script."""
+    """
+    Defines a single, executable or static step/block within a declarative workflow.
+    This model is now flexible enough to represent both flow steps and notebook blocks.
+    """
 
     id: str
-    name: str
+
+    # 'name' is now optional, as Markdown blocks won't have it.
+    name: Optional[str] = None
+
     description: str | None = None
-    connection_source: Optional[str] = Field(
-        default=None, description="Source identifier, e.g., 'user:my_db' or 'file:...'"
+
+    # NEW: The 'engine' field from our Block model is now part of the core step.
+    engine: Optional[str] = Field(
+        None,
+        description="The execution engine for this step (e.g., 'sql', 'python', 'markdown').",
     )
+
+    # NEW: The 'content' field for notebook blocks.
+    content: Optional[str] = Field(
+        None, description="The source code or text content for notebook blocks."
+    )
+
+    connection_source: Optional[str] = Field(
+        default=None, description="Source identifier, e.g., 'user:my_db'"
+    )
+
     context: Optional[Dict[str, Any]] = Field(
         default=None,
-        description="A dictionary of step-local variables to be made available for Jinja rendering.",
+        description="A dictionary of step-local variables for Jinja rendering.",
     )
-    run: AnyConnectorAction = Field(..., discriminator="action")
-    outputs: Optional[Dict[str, str]] = Field(
+
+    # 'run' is now optional. It's required for flow steps but not for markdown blocks.
+    run: Optional[AnyConnectorAction] = Field(None, discriminator="action")
+
+    # 'inputs' is now a simple list of strings, matching the Block model.
+    inputs: List[str] = Field(
+        default_factory=list,
+        description="A list of dependencies on outputs from other steps, specified as 'step_id.output_name'.",
+    )
+
+    # 'outputs' can now be a list (notebooks) or a dict (flows).
+    outputs: Union[List[str], Dict[str, str], None] = Field(
         None,
-        description="A mapping of output names to JMESPath queries to extract values from the result.",
+        description="A list of output names (for notebooks) or a dict of name:jmespath pairs (for flows).",
     )
+
     depends_on: Optional[List[str]] = Field(
         None,
         description="A list of step IDs that must complete before this step can run.",
@@ -236,6 +266,9 @@ class ConnectorStep(BaseModel):
         description="A Jinja2 expression that must evaluate to true for the step to run.",
     )
     cache_config: Optional[Dict[str, Any]] = None
+
+    class Config:
+        populate_by_name = True
 
 
 class ScriptInputParameter(BaseModel):

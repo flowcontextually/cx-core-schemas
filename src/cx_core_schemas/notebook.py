@@ -17,7 +17,17 @@ class Block(BaseModel):
     )
 
     engine: Literal[
-        "markdown", "sql", "python", "transform", "ui-component", "stream", "agent"
+        "markdown",
+        "sql",
+        "python",
+        "transform",
+        "ui-component",
+        "stream",
+        "agent",
+        "cx-action",
+        "shell",
+        "run",
+        "yaml",
     ] = Field(
         ...,
         description="The execution engine responsible for processing the block's content.",

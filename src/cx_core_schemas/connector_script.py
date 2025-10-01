@@ -221,12 +221,15 @@ class ConnectorStep(BaseModel):
 
     description: str | None = None
 
-    # NEW: The 'engine' field from our Block model is now part of the core step.
+    # A step MUST have either an 'engine' or a 'run' block, but not both.
     engine: Optional[str] = Field(
-        None,
-        description="The execution engine for this step (e.g., 'sql', 'python', 'markdown').",
+        None, description="The execution engine for this step (e.g., 'sql', 'python')."
     )
-
+    run: Optional[AnyConnectorAction] = Field(
+        None,
+        discriminator="action",
+        description="The declarative action payload for this step.",
+    )
     # NEW: The 'content' field for notebook blocks.
     content: Optional[str] = Field(
         None, description="The source code or text content for notebook blocks."

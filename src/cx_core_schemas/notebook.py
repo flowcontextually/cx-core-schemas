@@ -1,67 +1,67 @@
 from pydantic import BaseModel, Field
-from typing import Dict, List, Literal, Optional
-from .connector_script import ScriptInputParameter  # Reuse existing schema!
+from typing import Dict, List, Optional
+from .connector_script import ScriptInputParameter, ConnectorStep
 
 
 # --- Block Model ---
 
 
-class Block(BaseModel):
-    """
-    Represents a single, executable or static unit of content within a Contextual Page.
-    """
+# class Block(BaseModel):
+#     """
+#     Represents a single, executable or static unit of content within a Contextual Page.
+#     """
 
-    id: str = Field(
-        ...,
-        description="A unique, user-defined identifier for the block within the page (e.g., 'get_raw_data').",
-    )
+#     id: str = Field(
+#         ...,
+#         description="A unique, user-defined identifier for the block within the page (e.g., 'get_raw_data').",
+#     )
 
-    engine: Literal[
-        "markdown",
-        "sql",
-        "python",
-        "transform",
-        "ui-component",
-        "stream",
-        "agent",
-        "cx-action",
-        "shell",
-        "run",
-        "yaml",
-    ] = Field(
-        ...,
-        description="The execution engine responsible for processing the block's content.",
-    )
+#     engine: Literal[
+#         "markdown",
+#         "sql",
+#         "python",
+#         "transform",
+#         "ui-component",
+#         "stream",
+#         "agent",
+#         "cx-action",
+#         "shell",
+#         "run",
+#         "yaml",
+#     ] = Field(
+#         ...,
+#         description="The execution engine responsible for processing the block's content.",
+#     )
 
-    content: str = Field(
-        ...,
-        description="The source code, Markdown text, or declarative YAML content of the block.",
-    )
+#     content: str = Field(
+#         ...,
+#         description="The source code, Markdown text, or declarative YAML content of the block.",
+#     )
 
-    name: Optional[str] = Field(
-        None, description="An optional, human-readable name for the block."
-    )
+#     name: Optional[str] = Field(
+#         None, description="An optional, human-readable name for the block."
+#     )
 
-    inputs: List[str] = Field(
-        default_factory=list,
-        description="A list of dependencies this block has on the outputs of other blocks, specified as 'block_id.output_name'.",
-    )
+#     inputs: List[str] = Field(
+#         default_factory=list,
+#         description="A list of dependencies this block has on the outputs of other blocks, specified as 'block_id.output_name'.",
+#     )
 
-    outputs: List[str] = Field(
-        default_factory=list,
-        description="A list of named variables that this block produces for other blocks to consume.",
-    )
+#     outputs: List[str] = Field(
+#         default_factory=list,
+#         description="A list of named variables that this block produces for other blocks to consume.",
+#     )
 
-    if_condition: Optional[str] = Field(
-        None,
-        alias="if",
-        description="A Jinja2 expression that must evaluate to true for the block to run.",
-    )
+#     if_condition: Optional[str] = Field(
+#         None,
+#         alias="if",
+#         description="A Jinja2 expression that must evaluate to true for the block to run.",
+#     )
 
-    class Config:
-        populate_by_name = (
-            True  # Allows using 'if' as a field name, which is a Python keyword.
-        )
+#     class Config:
+#         populate_by_name = (
+#             True  # Allows using 'if' as a field name, which is a Python keyword.
+#         )
 
 
 class ContextualPage(BaseModel):
@@ -83,9 +83,8 @@ class ContextualPage(BaseModel):
         description="Parameters that can be passed to the entire page at runtime, making it a reusable function.",
     )
 
-    blocks: List[Block] = Field(
-        ...,
-        description="The ordered list of blocks that constitute the page's content and computational graph.",
+    blocks: List[ConnectorStep] = Field(
+        ..., description="The ordered list of steps/blocks."
     )
 
     version: str = Field("1.0.0", description="The version of the Contextual Page.")

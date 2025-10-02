@@ -69,6 +69,11 @@ class ContextualPage(BaseModel):
     The in-memory representation of a complete, executable `.cx.md` document.
     """
 
+    id: Optional[str] = Field(
+        None,
+        description="The full, namespaced ID of the page (e.g., 'my-project/my-page').",
+    )
+
     name: str = Field(
         ...,
         description="The primary name/title of the Contextual Page, derived from the front matter.",

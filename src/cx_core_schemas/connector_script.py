@@ -221,8 +221,23 @@ class ConnectorStep(BaseModel):
 
     description: str | None = None
 
-    # A step MUST have either an 'engine' or a 'run' block, but not both.
-    engine: Optional[str] = Field(
+    engine: Optional[
+        Literal[
+            "markdown",
+            "sql",
+            "python",
+            "transform",
+            "ui-component",
+            "stream",
+            "agent",
+            "cx-action",
+            "shell",
+            "run",
+            "yaml",
+            "publish",
+            "artifact",
+        ]
+    ] = Field(
         None, description="The execution engine for this step (e.g., 'sql', 'python')."
     )
     run: Optional[AnyConnectorAction] = Field(
@@ -243,9 +258,6 @@ class ConnectorStep(BaseModel):
         default=None,
         description="A dictionary of step-local variables for Jinja rendering.",
     )
-
-    # 'run' is now optional. It's required for flow steps but not for markdown blocks.
-    run: Optional[AnyConnectorAction] = Field(None, discriminator="action")
 
     # 'inputs' is now a simple list of strings, matching the Block model.
     inputs: List[str] = Field(
